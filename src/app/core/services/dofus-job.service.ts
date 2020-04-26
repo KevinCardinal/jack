@@ -3,6 +3,7 @@ import {CraftCategory, Job} from '../models/dofus-job.model';
 import {Maps} from '../utils/maps.util';
 import {forkJoin, Observable, of, throwError} from 'rxjs';
 import {map} from 'rxjs/operators';
+import {Strings} from '@app/core/utils/strings.util';
 
 @Injectable()
 export class DofusJobService {
@@ -13,9 +14,11 @@ export class DofusJobService {
   constructor() {}
 
   public getJobs(): Observable<Job[]> {
-    return of(Maps.entrySet(jobs).map(entry => {
+    const res = Maps.entrySet(jobs).map(entry => {
       return {id: entry.key, name: entry.value.label};
-    }));
+    });
+    res.sort((a, b) => Strings.compare(a.name, b.name));
+    return of(res);
   }
 
   public getCraftCategories(jobId: string): Observable<CraftCategory[]> {
@@ -23,9 +26,11 @@ export class DofusJobService {
     if (job == null) {
       return throwError(new Error('No job with id = \'' + jobId + '\''));
     } else {
-      return of(job.craftCategoryIds.map(id => {
+      const res = job.craftCategoryIds.map(id => {
         return {id, name: craftCategories.get(id).label};
-      }));
+      });
+      res.sort((a, b) => Strings.compare(a.name, b.name));
+      return of(res);
     }
   }
 
