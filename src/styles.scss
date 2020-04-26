@@ -1,0 +1,14 @@
+html, body {
+  height: 100%;
+}
+
+.div-center-container {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ui-dropdown-item-empty {
+  display: none;
+}

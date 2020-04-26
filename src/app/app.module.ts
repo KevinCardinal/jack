@@ -3,18 +3,28 @@ import {NgModule} from '@angular/core';
 
 import {AppRoutingModule} from './app-routing.module';
 import {AppComponent} from './app.component';
-import {DofusComponent} from './features/dofus/dofus.component';
+import {DofusModule} from './features/dofus/dofus.module';
+import {HomeModule} from './features/home/home.module';
+import {DofusJobService} from './core/services/dofus-job.service';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import {SharedModule} from '@app/shared/shared.module';
 
 @NgModule({
   declarations: [
     AppComponent,
-    DofusComponent
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    BrowserAnimationsModule,
+    AppRoutingModule,
+    DofusModule,
+    HomeModule,
+    SharedModule
   ],
-  providers: [],
+  providers: [
+    DofusJobService
+  ],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {
+}

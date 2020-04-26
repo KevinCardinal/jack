@@ -1,21 +1,23 @@
 import {NgModule} from '@angular/core';
-import {Routes, RouterModule} from '@angular/router';
-
+import {RouterModule, Routes} from '@angular/router';
+import {JobXpComponent} from './features/dofus/job-xp/job-xp.component';
+import {HomeComponent} from './features/home/home.component';
+import {DOFUS_JOB_XP_PATH} from './app-routing.constants';
 
 const routes: Routes = [
-    {
-        path: 'dofus',
-        loadChildren: './features/dofus/dofus.module#DofusModule'
-    },
-    {
-        path: '',
-        redirectTo: '/dofus/xp',
-        pathMatch: 'full'
-    }
+  {
+    path: DOFUS_JOB_XP_PATH,
+    component: JobXpComponent,
+  },
+  {
+    path: '',
+    component: HomeComponent
+  }
 ];
 
 @NgModule({
-    imports: [RouterModule.forRoot(routes)],
-    exports: [RouterModule]
+  imports: [RouterModule.forRoot(routes)],
+  exports: [RouterModule]
 })
-export class AppRoutingModule {}
+export class AppRoutingModule {
+}
