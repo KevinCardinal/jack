@@ -55,4 +55,8 @@ export class JobXpComponent implements OnInit {
       });
   }
 
+  toNumber(value: any) {
+    return value == null || value === '' ? null : Number(value);
+  }
+
 }

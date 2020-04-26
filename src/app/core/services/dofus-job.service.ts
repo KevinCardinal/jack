@@ -90,7 +90,6 @@ export class DofusJobService {
       let count = 0;
       while (currentXp < endXp && !isNaN(count)) {
         const xpGain = this.craftXp(currentXp, craftLevel, craft);
-        console.log(xpGain);
         if (xpGain === 0) {
           count = NaN;
         } else {
