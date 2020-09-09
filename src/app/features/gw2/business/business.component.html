@@ -1,0 +1,8 @@
+<div *ngIf="mainDataReady" fxLayout="row nowrap" fxLayoutGap="1rem">
+  <p-button (onClick)="uploadMainData()"
+            label="Télécharger les données principales">
+  </p-button>
+  <div *ngIf="mainDataMessage" [ngClass]="{'color-red': mainDataMessageIsError, 'mv-auto': true}">
+    {{mainDataMessage}} <span *ngIf="mainDataPercentage != null">{{mainDataPercentage}} %</span>
+  </div>
+</div>

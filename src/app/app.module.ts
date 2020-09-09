@@ -8,6 +8,9 @@ import {HomeModule} from './features/home/home.module';
 import {DofusJobService} from './core/services/dofus-job.service';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {SharedModule} from '@app/shared/shared.module';
+import {Gw2BusinessRepository} from '@app/core/repositories/gw2-business-repository.service';
+import {Gw2Module} from '@app/features/gw2/gw2.module';
+import {HttpClientModule} from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -19,10 +22,13 @@ import {SharedModule} from '@app/shared/shared.module';
     AppRoutingModule,
     DofusModule,
     HomeModule,
-    SharedModule
+    SharedModule,
+    Gw2Module,
+    HttpClientModule
   ],
   providers: [
-    DofusJobService
+    DofusJobService,
+    Gw2BusinessRepository
   ],
   bootstrap: [AppComponent]
 })

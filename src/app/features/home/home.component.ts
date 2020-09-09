@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {DOFUS_JOB_XP_PATH} from 'src/app/app-routing.constants';
+import {DOFUS_JOB_XP_PATH, GW2_BUSINESS_PATH} from 'src/app/app-routing.constants';
 
 @Component({
   selector: 'app-home',
@@ -9,6 +9,7 @@ import {DOFUS_JOB_XP_PATH} from 'src/app/app-routing.constants';
 export class HomeComponent implements OnInit {
 
   DOFUS_JOB_XP_PATH = DOFUS_JOB_XP_PATH;
+  GW2_BUSINESS_PATH = GW2_BUSINESS_PATH;
 
   constructor() { }
 
