@@ -65,6 +65,9 @@ export class BusinessComponent implements OnInit {
   async uploadMainData(): Promise<void> {
     // Starting
     this.mainDataMessageIsError = false;
+    const version = this.getVersion();
+    this.clearStorage();
+    this.setVersion(version);
 
     // Recipes ids
     this.mainDataMessage = 'Calcul ...';
