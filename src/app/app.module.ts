@@ -11,6 +11,7 @@ import {SharedModule} from '@app/shared/shared.module';
 import {Gw2BusinessRepository} from '@app/core/repositories/gw2-business-repository.service';
 import {Gw2Module} from '@app/features/gw2/gw2.module';
 import {HttpClientModule} from '@angular/common/http';
+import {CompressionService} from '@app/core/services/compression.service';
 
 @NgModule({
   declarations: [
@@ -28,7 +29,8 @@ import {HttpClientModule} from '@angular/common/http';
   ],
   providers: [
     DofusJobService,
-    Gw2BusinessRepository
+    Gw2BusinessRepository,
+    CompressionService
   ],
   bootstrap: [AppComponent]
 })

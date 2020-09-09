@@ -2,6 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {Gw2BusinessRepository} from '@app/core/repositories/gw2-business-repository.service';
 import {gw2BusinessConfig} from '@env/environment';
 import {ItemFlag, RecipeFlag} from '@app/core/models/gw2-business.model';
+import {CompressionService} from '@app/core/services/compression.service';
 
 
 @Component({
@@ -28,7 +29,8 @@ export class BusinessComponent implements OnInit {
   recipes: Map<number, LocalRecipe>;
   items: Map<number, LocalItem>;
 
-  constructor(private gw2BusinessRepository: Gw2BusinessRepository) {
+  constructor(private gw2BusinessRepository: Gw2BusinessRepository,
+              private compressionService: CompressionService) {
     this.maxIds = this.gw2BusinessRepository.MAX_IDS;
   }
 
@@ -144,52 +146,20 @@ export class BusinessComponent implements OnInit {
 
   private getRecipes(): LocalRecipe[] | null {
     const res = localStorage.getItem(this.recipesKey);
-    if (res == null) {
-      return null;
-    }
-    return res.split('|')
-      .map(line => {
-        const elements = line.split(';');
-        return {
-          itemId: Number(elements[0]),
-          count: Number(elements[1]),
-          autoLearned: elements[2] === '1',
-          ingredients: elements.slice(3).map(element => {
-            const subElements = element.split(',');
-            return {
-              itemId: Number(subElements[0]),
-              count: Number(subElements[1])
-            };
-          })
-        };
-      });
+    return res == null ? null : this.compressionService.decompressObject(res);
   }
 
   private setRecipes(recipes: LocalRecipe[]) {
-    const res = recipes.map(recipe => recipe.itemId + ';' + recipe.count + ';' + (recipe.autoLearned ? '1' : '0') + ';'
-      + recipe.ingredients.map(ingredient => ingredient.itemId + ',' + ingredient.count).join(';')).join('|');
-    localStorage.setItem(this.recipesKey, res);
+    localStorage.setItem(this.recipesKey, this.compressionService.compressObject(recipes));
   }
 
   private getItems(): LocalItem[] | null {
     const res = localStorage.getItem(this.itemsKey);
-    if (res == null) {
-      return null;
-    }
-    return res.split('|')
-      .map(line => {
-        const elements = line.split(';');
-        return {
-          id: Number(elements[0]),
-          name: elements[1],
-          sellable: elements[2] === '1'
-        };
-      });
+    return res == null ? null : this.compressionService.decompressObject(res);
   }
 
   private setItems(items: LocalItem[]) {
-    const res = items.map(item => item.id + ';' + item.name + ';' + (item.sellable ? '1' : '0')).join('|');
-    localStorage.setItem(this.itemsKey, res);
+    localStorage.setItem(this.itemsKey, this.compressionService.compressObject(items));
   }
 
   private clearStorage(): void {
