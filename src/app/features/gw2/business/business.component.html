@@ -6,3 +6,11 @@
     {{mainDataMessage}} <span *ngIf="mainDataPercentage != null">{{mainDataPercentage}} %</span>
   </div>
 </div>
+<div *ngIf="items" fxLayout="row nowrap" fxLayoutGap="1rem">
+  <p-button (onClick)="uploadPrices()"
+            label="Télécharger les prix">
+  </p-button>
+  <div *ngIf="pricesMessage" class="mv-auto">
+    {{pricesMessage}} <span *ngIf="pricesPercentage != null">{{pricesPercentage}} %</span>
+  </div>
+</div>

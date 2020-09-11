@@ -21,8 +21,13 @@
       ],
       "@env/*": [
         "src/environments/*"
+      ],
+      "@assets/*": [
+        "src/assets/*"
       ]
-    }
+    },
+    "resolveJsonModule": true,
+    "esModuleInterop": true
   },
   "angularCompilerOptions": {
     "fullTemplateTypeCheck": true,

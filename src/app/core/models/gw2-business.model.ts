@@ -224,3 +224,19 @@ export class CommercePrice {
 export class Build {
   id: number;
 }
+
+export enum Gw2Currency {
+  Gold = 'Gold',
+  Karma = 'Karma'
+}
+
+export class NpcPricePrice {
+  amount: number;
+  currency: Gw2Currency;
+}
+
+export class NpcPrice {
+  id: number;
+  count: number;
+  price: NpcPricePrice[];
+}

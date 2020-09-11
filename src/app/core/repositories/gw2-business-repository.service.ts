@@ -1,8 +1,9 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {forkJoin, Observable, of} from 'rxjs';
-import {Build, CommercePrice, Item, Recipe} from '@app/core/models/gw2-business.model';
+import {Build, CommercePrice, Item, NpcPrice, Recipe} from '@app/core/models/gw2-business.model';
 import {flatMap, map} from 'rxjs/operators';
+import gw2BusinessNpcPrices from '@assets/resources/gw2-business-npc-prices.json';
 
 @Injectable()
 export class Gw2BusinessRepository {
@@ -19,7 +20,11 @@ export class Gw2BusinessRepository {
   private commercePricesEndpoint = '/commerce/prices';
   private buildEndpoint = '/build';
 
+  private npcPrices: Map<number, NpcPrice>;
+
   constructor(private http: HttpClient) {
+    const list: NpcPrice[] = gw2BusinessNpcPrices;
+    this.npcPrices = new Map(list.map(x => [x.id, x]));
   }
 
   public getItemIds(): Observable<number[]> {
@@ -47,6 +52,14 @@ export class Gw2BusinessRepository {
 
   public getCommercePrices(ids: number[]): Observable<CommercePrice[]> {
     return this.getCommercePricesHelper(ids);
+  }
+
+  public getNpcPriceIds(): Observable<number[]> {
+    return of(Array.from(this.npcPrices.keys()));
+  }
+
+  public getNpcPrices(ids: number[]): Observable<NpcPrice[]> {
+    return of(ids.map(id => this.npcPrices.get(id)).filter(x => x != null));
   }
 
   public getBuild(): Observable<Build> {
