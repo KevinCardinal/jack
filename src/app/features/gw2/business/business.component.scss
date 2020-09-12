@@ -1,0 +1,22 @@
+.recipe-name {
+  cursor: pointer;
+  width: max-content;
+  display: table-cell;
+}
+
+.recipe-name:hover {
+  text-decoration: underline;
+}
+
+::ng-deep body .ui-multiselect.gw2-business .ui-multiselect-items {
+  padding-right: 1rem;
+}
+
+::ng-deep body p-checkbox {
+  display: flex;
+
+  .ui-chkbox {
+    margin-top: auto;
+    margin-bottom: auto;
+  }
+}

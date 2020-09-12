@@ -1,0 +1,29 @@
+.font-courier {
+  font-family: Courier New,Courier,Lucida Sans Typewriter,Lucida Typewriter,monospace;
+}
+
+::ng-deep body .ui-dialog.gw2-business-recipe-dialog {
+  max-width: 90%;
+
+  .ui-dialog-content {
+    padding-right: 2em;
+  }
+}
+
+
+
+.line-Craft {
+  color: green;
+}
+
+.line-HDV {
+  color: blue;
+}
+
+.line-NPC {
+  color: gold;
+}
+
+.line-Unknown {
+  color: red;
+}

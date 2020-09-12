@@ -1,20 +1,21 @@
 import { Injectable } from '@angular/core';
 
-import { compress, decompress } from 'lz-string';
+import LZString from 'lz-string';
+
 
 @Injectable()
 export class CompressionService {
   compressString(data: string): string {
-    return compress(data);
+    return LZString.compressToUTF16(data);
   }
   compressObject(data: any): string {
-    return compress(JSON.stringify(data));
+    return LZString.compressToUTF16(JSON.stringify(data));
   }
 
   decompressString(compressed: string): string {
-    return decompress(compressed);
+    return LZString.decompressFromUTF16(compressed);
   }
   decompressObject(compressed: string): any {
-    return JSON.parse(decompress(compressed));
+    return JSON.parse(LZString.decompressFromUTF16(compressed));
   }
 }

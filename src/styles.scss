@@ -21,3 +21,32 @@ html, body {
   margin-top: auto;
   margin-bottom: auto;
 }
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.white-space-nowrap {
+  white-space: nowrap;
+}
+
+i.gold, i.silver, i.copper {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  vertical-align: middle;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+i.gold {
+  background-image: url("assets/images/gold.png");
+}
+
+i.silver {
+  background-image: url("assets/images/silver.png");
+}
+
+i.copper {
+  background-image: url("assets/images/copper.png");
+}

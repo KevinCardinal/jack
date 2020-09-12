@@ -1,16 +1,125 @@
-<div *ngIf="mainDataReady" fxLayout="row nowrap" fxLayoutGap="1rem">
-  <p-button (onClick)="uploadMainData()"
-            label="Télécharger les données principales">
-  </p-button>
-  <div *ngIf="mainDataMessage" [ngClass]="{'color-red': mainDataMessageIsError, 'mv-auto': true}">
-    {{mainDataMessage}} <span *ngIf="mainDataPercentage != null">{{mainDataPercentage}} %</span>
+<div class="p-4">
+  <div *ngIf="!mainDataReady">Chargement ...</div>
+  <div *ngIf="mainDataReady" fxLayout="row nowrap" fxLayoutGap="1rem">
+    <p-button (onClick)="uploadMainData()"
+              label="Télécharger les données principales">
+    </p-button>
+    <div *ngIf="mainDataMessage" [ngClass]="{'color-red': mainDataMessageIsError, 'mv-auto': true}">
+      {{mainDataMessage}} <span *ngIf="mainDataPercentage != null">{{mainDataPercentage}} %</span>
+    </div>
+  </div>
+  <div *ngIf="items" fxLayout="row nowrap" fxLayoutGap="1rem" class="mt-3">
+    <p-button (onClick)="uploadPrices()"
+              label="Télécharger les prix">
+    </p-button>
+    <div *ngIf="pricesMessage" class="mv-auto">
+      {{pricesMessage}} <span *ngIf="pricesPercentage != null">{{pricesPercentage}} %</span>
+    </div>
+  </div>
+  <div *ngIf="commercePrices" class="mt-5">
+    <form [formGroup]="formGroup" fxLayout="row wrap" fxLayoutGap="1rem">
+      <input pInputText type="text" [(ngModel)]="search" placeholder="Recherche par mots clés"
+             formControlName="search" class="mv-auto"/>
+      <div class="mv-auto">
+        <p-multiSelect [options]="disciplineOptions" [(ngModel)]="selectedDisciplines"
+                       defaultLabel="Métiers" formControlName="selectedDisciplines"
+                       styleClass="gw2-business" maxSelectedLabels="0"
+                       selectedItemsLabel="{0} métier(s) sélectionné(s)"
+                       (onChange)="filterTableData()" [filter]="false">
+        </p-multiSelect>
+      </div>
+      <input pInputText type="number" [(ngModel)]="minRating" placeholder="Niveau minimum"
+             formControlName="minRating" class="mv-auto" style="width: 150px"/>
+      <input pInputText type="number" [(ngModel)]="maxRating" placeholder="Niveau maximum"
+             formControlName="maxRating" class="mv-auto" style="width: 150px"/>
+      <p-checkbox [(ngModel)]="notAutoLearnedRecipes" label="Recettes non apprises automatiquement"
+                  [binary]="true" formControlName="notAutoLearnedRecipes" (onChange)="filterTableData()"
+                  class="mv-auto"></p-checkbox>
+      <p-checkbox [(ngModel)]="unknownSource" label="Composants à l'obtention inconnue"
+                  [binary]="true" formControlName="unknownSource" (onChange)="filterTableData()"
+                  class="mv-auto"></p-checkbox>
+      <p-checkbox [(ngModel)]="notSellable" label="Non vendable"
+                  [binary]="true" formControlName="notSellable" (onChange)="filterTableData()"
+                  class="mv-auto"></p-checkbox>
+      <span class="spacer"></span>
+      <p-button (onClick)="filterTableData()" label="Filtrer" class="mv-auto"></p-button>
+    </form>
+    <div class="mt-3">
+      <p-table [value]="filteredCraftPrices ? filteredCraftPrices : []" [rowHover]="true"
+               [paginator]="true" [rows]="10" [rowsPerPageOptions]="[5,10,15,20,25,50]"
+               class="table-auto" [paginatorDropdownAppendTo]="'body'">
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="name">
+              <div fxLayout="row nowrap" fxLayoutAlign="center" fxLayoutGap="1rem">
+                <div class="mv-auto">
+                  Nom de l'item
+                </div>
+                <p-sortIcon field="name"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="price">
+              <div fxLayout="row nowrap" fxLayoutAlign="center" fxLayoutGap="1rem">
+                <div class="mv-auto">
+                  Prix craft
+                </div>
+                <p-sortIcon field="price"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="sellingPrice">
+              <div fxLayout="row nowrap" fxLayoutAlign="center" fxLayoutGap="1rem">
+                <div class="mv-auto">
+                  Prix HDV
+                </div>
+                <p-sortIcon field="sellingPrice"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="profit">
+              <div fxLayout="row nowrap" fxLayoutAlign="center" fxLayoutGap="1rem">
+                <div class="mv-auto">
+                  Bénéfice
+                </div>
+                <p-sortIcon field="profit"></p-sortIcon>
+              </div>
+            </th>
+          </tr>
+        </ng-template>
+        <ng-container *ngIf="!craftPrices">
+          <ng-template pTemplate="body">
+            <tr>
+              <td colspan="4">
+                Calcul ...
+              </td>
+            </tr>
+          </ng-template>
+        </ng-container>
+        <ng-container *ngIf="craftPrices">
+          <ng-template pTemplate="body" let-craftPrice>
+            <tr>
+              <td>
+                <div fxLayout="row wrap" fxLayoutGap="1rem">
+                  <img [src]="craftPrice.icon"
+                       class="mv-auto" style="width: 40px; height: 40px">
+                  <div class="recipe-name mv-auto" (click)="showRecipe(craftPrice)">
+                    {{craftPrice.count === 1 ? '' : craftPrice.count + ' '}}{{craftPrice.name}}
+                  </div>
+                </div>
+
+              </td>
+              <td>
+                <div class="d-flex" [innerHTML]="craftPrice.price | gw2Gold"></div>
+              </td>
+              <td>
+                <div class="d-flex" [innerHTML]="craftPrice.sellingPrice | gw2Gold"></div>
+              </td>
+              <td>
+                <div class="d-flex" [innerHTML]="craftPrice.profit | gw2Gold"></div>
+              </td>
+            </tr>
+          </ng-template>
+        </ng-container>
+      </p-table>
+    </div>
   </div>
 </div>
-<div *ngIf="items" fxLayout="row nowrap" fxLayoutGap="1rem">
-  <p-button (onClick)="uploadPrices()"
-            label="Télécharger les prix">
-  </p-button>
-  <div *ngIf="pricesMessage" class="mv-auto">
-    {{pricesMessage}} <span *ngIf="pricesPercentage != null">{{pricesPercentage}} %</span>
-  </div>
-</div>
+<p-toast key="toast" position="bottom-center"></p-toast>
