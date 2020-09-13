@@ -8,8 +8,12 @@
   text-decoration: underline;
 }
 
-::ng-deep body .ui-multiselect.gw2-business .ui-multiselect-items {
-  padding-right: 1rem;
+::ng-deep body .ui-multiselect.gw2-business .ui-multiselect-panel {
+    width: 200px;
+}
+
+::ng-deep body p-table .ui-sortable-column-icon {
+  vertical-align: sub;
 }
 
 ::ng-deep body p-checkbox {
@@ -18,5 +22,20 @@
   .ui-chkbox {
     margin-top: auto;
     margin-bottom: auto;
+  }
+}
+
+.filters .mv-auto > * {
+  margin-bottom: 0.5rem;
+}
+
+::ng-deep body .filters .mv-auto {
+
+  .ui-multiselect.gw2-business {
+    margin-bottom: 0.5rem;
+  }
+
+  .ui-dropdown.gw2-business {
+    margin-bottom: 0.5rem;
   }
 }

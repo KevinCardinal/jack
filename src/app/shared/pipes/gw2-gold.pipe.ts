@@ -10,15 +10,18 @@ export class Gw2GoldPipe implements PipeTransform {
       return '';
     }
     const amount = Math.abs(value);
-    const symbol = value < 0 ? '- ' : '';
-    let res = (amount % 100) + '<i class="copper ml-1 mr-1 mv-auto"></i>';
+    const symbol = (value < 0 ? '<span class="mv-auto">-&nbsp;</span>' : '');
+    let res = '<span class="d-flex"><span class="mv-auto">' + (amount % 100)
+      + '</span><i class="copper ml-1 mr-1 mv-auto"></i></span>';
     if (amount < 100) {
       return symbol + res;
     }
-    res = (Math.floor((amount % 10000) / 100)) + '<i class="silver ml-1 mr-1 mv-auto"></i>' + res;
+    res = '<span class="d-flex"><span class="mv-auto">' + (Math.floor((amount % 10000) / 100))
+      + '</span><i class="silver ml-1 mr-1 mv-auto"></i></span>' + res;
     if (amount < 10000) {
       return symbol + res;
     }
-    return symbol + Math.floor(amount / 10000) + '<i class="gold ml-1 mr-1 mv-auto"></i>' + res;
+    return symbol + '<span class="d-flex"><span class="mv-auto">' + Math.floor(amount / 10000)
+      + '</span><i class="gold ml-1 mr-1 mv-auto"></i></span>' + res;
   }
 }

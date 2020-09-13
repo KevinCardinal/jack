@@ -1,8 +1,8 @@
 <ng-template #recursiveStep let-steps let-i="i">
   <ng-container *ngFor="let step of steps">
-    <div class="white-space-nowrap line-{{step.source}}">
-      {{('|' + '&nbsp;'.repeat(7)).repeat(i - 1)}}|-----> {{step.count}}x {{step.name}} [{{step.source}}]
-      (<span [innerHTML]="step.price | gw2Gold"></span>) {{step.fragmented ? '!' : ''}}
+    <div class="white-space-nowrap line-{{step.source}} d-flex">
+      {{('|' + '&nbsp;'.repeat(7)).repeat(i - 1)}}|-----> {{step.count}}x {{step.name}} [{{step.source | translate}}]
+      (<span class="d-flex" [innerHTML]="step.price | gw2Gold"></span>) {{step.fragmented ? '!' : ''}}
     </div>
     <ng-container *ngIf="step.subSteps">
       <ng-container *ngTemplateOutlet="recursiveStep; context: {$implicit: step.subSteps, i: i + 1}">
@@ -14,9 +14,9 @@
 <h5>Détails :</h5>
 
 <div class="font-courier">
-  <div class="white-space-nowrap line-{{craftStep.source}}">
+  <div class="white-space-nowrap line-{{craftStep.source}} d-flex">
     {{craftStep.count}}x {{craftStep.name}} [{{craftStep.source}}]
-    (<span [innerHTML]="craftStep.price | gw2Gold"></span>) {{craftStep.fragmented ? '!' : ''}}
+    (<span class="d-flex" [innerHTML]="craftStep.price | gw2Gold"></span>) {{craftStep.fragmented ? '!' : ''}}
   </div>
   <ng-container *ngTemplateOutlet="recursiveStep; context: {$implicit: craftStep.subSteps, i: 1}">
   </ng-container>

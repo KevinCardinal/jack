@@ -1,11 +1,15 @@
 {
-  "Artificer": "Artificier",
   "Armorsmith":  "Forgeron d'armures",
+  "Artificer": "Artificier",
   "Chef": "Maître-queux",
+  "Craft": "Craft",
+  "HDV": "HDV",
   "Huntsman": "Chasseur",
   "Jeweler": "Bijoutier",
   "Leatherworker": "Travailleur du cuir",
+  "NPC": "PNJ",
+  "Scribe": "Illustrateur",
   "Tailor": "Tailleur",
-  "Weaponsmith": "Forgerons d'armes",
-  "Scribe": "Illustrateur"
+  "Unknown": "Inconnu",
+  "Weaponsmith": "Forgerons d'armes"
 }

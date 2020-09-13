@@ -3,5 +3,5 @@ export const environment = {
 };
 
 export const gw2BusinessConfig = {
-  version: '1.0.1'
+  version: '1.0.2'
 };

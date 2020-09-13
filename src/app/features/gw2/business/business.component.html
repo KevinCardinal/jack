@@ -17,9 +17,11 @@
     </div>
   </div>
   <div *ngIf="commercePrices" class="mt-5">
-    <form [formGroup]="formGroup" fxLayout="row wrap" fxLayoutGap="1rem">
-      <input pInputText type="text" [(ngModel)]="search" placeholder="Recherche par mots clés"
-             formControlName="search" class="mv-auto"/>
+    <form [formGroup]="formGroup" fxLayout="row wrap" fxLayoutGap="1rem" class="filters">
+      <div class="mv-auto">
+        <input pInputText type="text" [(ngModel)]="search" placeholder="Recherche par mots clés"
+               formControlName="search"/>
+      </div>
       <div class="mv-auto">
         <p-multiSelect [options]="disciplineOptions" [(ngModel)]="selectedDisciplines"
                        defaultLabel="Métiers" formControlName="selectedDisciplines"
@@ -28,26 +30,45 @@
                        (onChange)="filterTableData()" [filter]="false">
         </p-multiSelect>
       </div>
-      <input pInputText type="number" [(ngModel)]="minRating" placeholder="Niveau minimum"
-             formControlName="minRating" class="mv-auto" style="width: 150px"/>
-      <input pInputText type="number" [(ngModel)]="maxRating" placeholder="Niveau maximum"
-             formControlName="maxRating" class="mv-auto" style="width: 150px"/>
-      <p-checkbox [(ngModel)]="notAutoLearnedRecipes" label="Recettes non apprises automatiquement"
-                  [binary]="true" formControlName="notAutoLearnedRecipes" (onChange)="filterTableData()"
-                  class="mv-auto"></p-checkbox>
-      <p-checkbox [(ngModel)]="unknownSource" label="Composants à l'obtention inconnue"
-                  [binary]="true" formControlName="unknownSource" (onChange)="filterTableData()"
-                  class="mv-auto"></p-checkbox>
-      <p-checkbox [(ngModel)]="notSellable" label="Non vendable"
-                  [binary]="true" formControlName="notSellable" (onChange)="filterTableData()"
-                  class="mv-auto"></p-checkbox>
+      <div class="mv-auto">
+        <input pInputText type="number" [(ngModel)]="minRating" placeholder="Niveau minimum"
+               formControlName="minRating" style="width: 150px"/>
+      </div>
+      <div class="mv-auto">
+        <input pInputText type="number" [(ngModel)]="maxRating" placeholder="Niveau maximum"
+               formControlName="maxRating" style="width: 150px"/>
+      </div>
+      <div class="mv-auto">
+        <p-checkbox [(ngModel)]="notAutoLearnedRecipes" label="Recettes non apprises automatiquement"
+                    [binary]="true" formControlName="notAutoLearnedRecipes" (onChange)="filterTableData()">
+        </p-checkbox>
+      </div>
+      <div class="mv-auto">
+        <p-checkbox [(ngModel)]="unknownSource" label="Composants à l'obtention inconnue"
+                    [binary]="true" formControlName="unknownSource" (onChange)="filterTableData()">
+        </p-checkbox>
+      </div>
+      <div class="mv-auto">
+        <p-checkbox [(ngModel)]="notSellable" label="Non vendable"
+                    [binary]="true" formControlName="notSellable" (onChange)="filterTableData()">
+        </p-checkbox>
+      </div>
       <span class="spacer"></span>
-      <p-button (onClick)="filterTableData()" label="Filtrer" class="mv-auto"></p-button>
+      <div class="mv-auto">
+        <p-dropdown [options]="modeOptions" [(ngModel)]="offerMode"
+                    placeholder="Mode de vente" formControlName="offerMode"
+                    styleClass="gw2-business">
+        </p-dropdown>
+      </div>
+      <div class="mv-auto">
+        <p-button (onClick)="filterTableData()" label="Filtrer"></p-button>
+      </div>
     </form>
     <div class="mt-3">
       <p-table [value]="filteredCraftPrices ? filteredCraftPrices : []" [rowHover]="true"
                [paginator]="true" [rows]="10" [rowsPerPageOptions]="[5,10,15,20,25,50]"
-               class="table-auto" [paginatorDropdownAppendTo]="'body'">
+               class="table-auto" [paginatorDropdownAppendTo]="'body'" [autoLayout]="true"
+               styleClass="gw2-business">
         <ng-template pTemplate="header">
           <tr>
             <th pSortableColumn="name">
@@ -55,7 +76,15 @@
                 <div class="mv-auto">
                   Nom de l'item
                 </div>
-                <p-sortIcon field="name"></p-sortIcon>
+                <p-sortIcon class="mv-auto" field="name"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="level">
+              <div fxLayout="row nowrap" fxLayoutAlign="center" fxLayoutGap="1rem">
+                <div class="mv-auto">
+                  Niveau
+                </div>
+                <p-sortIcon class="mv-auto" field="level"></p-sortIcon>
               </div>
             </th>
             <th pSortableColumn="price">
@@ -63,25 +92,61 @@
                 <div class="mv-auto">
                   Prix craft
                 </div>
-                <p-sortIcon field="price"></p-sortIcon>
+                <p-sortIcon class="mv-auto" field="price"></p-sortIcon>
               </div>
             </th>
-            <th pSortableColumn="sellingPrice">
-              <div fxLayout="row nowrap" fxLayoutAlign="center" fxLayoutGap="1rem">
-                <div class="mv-auto">
-                  Prix HDV
+            <ng-container *ngIf="offerMode">
+              <th pSortableColumn="sellingPrice">
+                <div fxLayout="row nowrap" fxLayoutAlign="center" fxLayoutGap="1rem">
+                  <div class="mv-auto">
+                    Prix HDV
+                  </div>
+                  <p-sortIcon class="mv-auto" field="sellingPrice"></p-sortIcon>
                 </div>
-                <p-sortIcon field="sellingPrice"></p-sortIcon>
-              </div>
-            </th>
-            <th pSortableColumn="profit">
-              <div fxLayout="row nowrap" fxLayoutAlign="center" fxLayoutGap="1rem">
-                <div class="mv-auto">
-                  Bénéfice
+              </th>
+              <th pSortableColumn="sellingProfit">
+                <div fxLayout="row nowrap" fxLayoutAlign="center" fxLayoutGap="1rem">
+                  <div class="mv-auto">
+                    Bénéfice
+                  </div>
+                  <p-sortIcon class="mv-auto" field="sellingProfit"></p-sortIcon>
                 </div>
-                <p-sortIcon field="profit"></p-sortIcon>
-              </div>
-            </th>
+              </th>
+              <th pSortableColumn="sellingQuantity">
+                <div fxLayout="row nowrap" fxLayoutAlign="center" fxLayoutGap="1rem">
+                  <div class="mv-auto">
+                    Quantité HDV
+                  </div>
+                  <p-sortIcon class="mv-auto" field="sellingQuantity"></p-sortIcon>
+                </div>
+              </th>
+            </ng-container>
+            <ng-container *ngIf="!offerMode">
+              <th pSortableColumn="buyingPrice">
+                <div fxLayout="row nowrap" fxLayoutAlign="center" fxLayoutGap="1rem">
+                  <div class="mv-auto">
+                    Prix HDV
+                  </div>
+                  <p-sortIcon class="mv-auto" field="buyingPrice"></p-sortIcon>
+                </div>
+              </th>
+              <th pSortableColumn="buyingProfit">
+                <div fxLayout="row nowrap" fxLayoutAlign="center" fxLayoutGap="1rem">
+                  <div class="mv-auto">
+                    Bénéfice
+                  </div>
+                  <p-sortIcon class="mv-auto" field="buyingProfit"></p-sortIcon>
+                </div>
+              </th>
+              <th pSortableColumn="buyingQuantity">
+                <div fxLayout="row nowrap" fxLayoutAlign="center" fxLayoutGap="1rem">
+                  <div class="mv-auto">
+                    Quantité HDV
+                  </div>
+                  <p-sortIcon class="mv-auto" field="buyingQuantity"></p-sortIcon>
+                </div>
+              </th>
+            </ng-container>
           </tr>
         </ng-template>
         <ng-container *ngIf="!craftPrices">
@@ -104,17 +169,29 @@
                     {{craftPrice.count === 1 ? '' : craftPrice.count + ' '}}{{craftPrice.name}}
                   </div>
                 </div>
-
               </td>
+              <td>{{craftPrice.level}}</td>
               <td>
-                <div class="d-flex" [innerHTML]="craftPrice.price | gw2Gold"></div>
+                <div class="d-flex flex-wrap" [innerHTML]="craftPrice.price | gw2Gold"></div>
               </td>
-              <td>
-                <div class="d-flex" [innerHTML]="craftPrice.sellingPrice | gw2Gold"></div>
-              </td>
-              <td>
-                <div class="d-flex" [innerHTML]="craftPrice.profit | gw2Gold"></div>
-              </td>
+              <ng-container *ngIf="offerMode">
+                <td>
+                  <div class="d-flex flex-wrap" [innerHTML]="craftPrice.sellingPrice | gw2Gold"></div>
+                </td>
+                <td>
+                  <div class="d-flex flex-wrap" [innerHTML]="craftPrice.sellingProfit | gw2Gold"></div>
+                </td>
+                <td>{{craftPrice.sellingQuantity}}</td>
+              </ng-container>
+              <ng-container *ngIf="!offerMode">
+                <td>
+                  <div class="d-flex flex-wrap" [innerHTML]="craftPrice.buyingPrice | gw2Gold"></div>
+                </td>
+                <td>
+                  <div class="d-flex flex-wrap" [innerHTML]="craftPrice.buyingProfit | gw2Gold"></div>
+                </td>
+                <td>{{craftPrice.buyingQuantity}}</td>
+              </ng-container>
             </tr>
           </ng-template>
         </ng-container>

@@ -3,10 +3,19 @@ import {CommonModule} from '@angular/common';
 import {Gw2Component} from '@app/features/gw2/gw2.component';
 import { BusinessComponent } from './business/business.component';
 import {FlexLayoutModule} from '@angular/flex-layout';
-import {ButtonModule, CheckboxModule, InputTextModule, MultiSelectModule, TableModule, ToastModule} from 'primeng';
+import {
+  ButtonModule,
+  CheckboxModule,
+  DropdownModule,
+  InputTextModule,
+  MultiSelectModule,
+  TableModule,
+  ToastModule
+} from 'primeng';
 import { RecipeDialogComponent } from './business/recipe-dialog/recipe-dialog.component';
 import {SharedModule} from '@app/shared/shared.module';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {TranslateModule} from '@ngx-translate/core';
 
 @NgModule({
   declarations: [
@@ -25,7 +34,9 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
     MultiSelectModule,
     InputTextModule,
     CheckboxModule,
-    ToastModule
+    ToastModule,
+    TranslateModule,
+    DropdownModule
   ]
 })
 export class Gw2Module {

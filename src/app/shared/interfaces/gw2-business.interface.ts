@@ -25,6 +25,7 @@ export interface LocalItem {
 export interface LocalCommercePrice {
   id: number;
   price: number;
+  quantity: number;
 }
 
 export enum MinPriceSource {
@@ -46,8 +47,12 @@ export interface MinPrice {
 
 export interface CraftPrice extends MinPrice {
   sellingPrice: number;
-  profit: number;
+  sellingQuantity: number;
+  sellingProfit: number;
   sellable: boolean;
+  buyingPrice: number;
+  buyingQuantity: number;
+  buyingProfit: number;
   disciplines: RecipeDiscipline[];
   level: number;
   icon: string;

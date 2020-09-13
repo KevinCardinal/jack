@@ -34,6 +34,7 @@ export class BusinessComponent implements OnInit {
   private readonly npcPricesKey = this.keyPrefix + 'npc-prices';
   private readonly commerceTimestampKey = this.keyPrefix + 'commerce-timestamp';
   private readonly commercePricesKey = this.keyPrefix + 'commerce-prices';
+  private readonly commerceBuyPricesKey = this.keyPrefix + 'commerce-buy-prices';
 
   maxIds: number;
 
@@ -49,6 +50,7 @@ export class BusinessComponent implements OnInit {
   items: Map<number, LocalItem>;
   npcPrices: Map<number, NpcPrice>;
   commercePrices: Map<number, LocalCommercePrice>;
+  commerceBuyPrices: Map<number, LocalCommercePrice>;
   minPrices: Map<number, MinPrice>;
   craftPrices: CraftPrice[];
   filteredCraftPrices: CraftPrice[];
@@ -59,9 +61,11 @@ export class BusinessComponent implements OnInit {
   disciplineOptions: SelectItem[];
   minRating: number;
   maxRating: number;
-  unknownSource: boolean = true;
-  notAutoLearnedRecipes: boolean = true;
-  notSellable: boolean = true;
+  unknownSource = true;
+  notAutoLearnedRecipes = true;
+  notSellable = true;
+  offerMode = true;
+  modeOptions: SelectItem[];
 
   constructor(private gw2BusinessRepository: Gw2BusinessRepository,
               private compressionService: CompressionService,
@@ -109,6 +113,7 @@ export class BusinessComponent implements OnInit {
       this.pricesMessage = 'La liste des prix date du ' + formatDate(currentTimestamp, 'dd-MM-yyyy', this.locale)
         + ' à ' + formatDate(currentTimestamp, 'HH:mm', this.locale) + '.';
       this.commercePrices = new Map(this.getCommercePrices().map(price => [price.id, price]));
+      this.commerceBuyPrices = new Map(this.getCommerceBuyPrices().map(price => [price.id, price]));
       this.computeTableData();
     }
   }
@@ -117,6 +122,10 @@ export class BusinessComponent implements OnInit {
     this.disciplineOptions = Object.keys(RecipeDiscipline).map(k => RecipeDiscipline[k] as RecipeDiscipline)
       .map(x => ({label: this.translateService.instant(x), value: x}))
       .sort((a, b) => a.label.localeCompare(b.label));
+    this.modeOptions = [
+      {label: 'Mode offre', value: true},
+      {label: 'Mode demande', value: false}
+    ];
     this.formGroup = this.formBuilder.group({
       search: new FormControl(this.search),
       selectedDisciplines: new FormControl(this.selectedDisciplines),
@@ -125,6 +134,7 @@ export class BusinessComponent implements OnInit {
       notAutoLearnedRecipes: new FormControl(this.notAutoLearnedRecipes),
       unknownSource: new FormControl(this.unknownSource),
       notSellable: new FormControl(this.notSellable),
+      offerMode: new FormControl(this.modeOptions, [Validators.required])
     });
   }
 
@@ -139,6 +149,7 @@ export class BusinessComponent implements OnInit {
       this.items = null;
       this.npcPrices = null;
       this.commercePrices = null;
+      this.commerceBuyPrices = null;
       this.minPrices = null;
       this.craftPrices = null;
       this.filteredCraftPrices = null;
@@ -231,6 +242,7 @@ export class BusinessComponent implements OnInit {
     try {
       // Start
       this.commercePrices = null;
+      this.commerceBuyPrices = null;
       this.minPrices = null;
       this.craftPrices = null;
       this.filteredCraftPrices = null;
@@ -239,36 +251,38 @@ export class BusinessComponent implements OnInit {
       // Commerce prices
       this.pricesMessage = '1/1 Téléchargement des prix ...';
       const localCommercePrices: LocalCommercePrice[] = [];
+      const localCommerceBuyPrices: LocalCommercePrice[] = [];
       for (let i = 0; i < itemIds.length; i += this.maxIds) {
         this.pricesPercentage = Math.floor(i * 100 / itemIds.length);
         const currentIds = itemIds.slice(i, Math.min(i + this.maxIds, itemIds.length));
-        const currentLocalCommercePrices: LocalCommercePrice[] =
-          (await this.gw2BusinessRepository.getCommercePrices(currentIds).toPromise())
-            .map(x => {
-              let price;
-              if (x.sells && x.sells.quantity && x.sells.quantity > 0) {
-                price = x.sells.unit_price;
-              } else if (x.buys && x.buys.quantity && x.buys.quantity > 0) {
-                price = x.buys.unit_price;
-              } else {
-                price = null;
-              }
-              return {
-                id: x.id,
-                price
-              };
-            })
-            .filter(x => x.price != null);
+        const currentCommercePrices = await this.gw2BusinessRepository.getCommercePrices(currentIds).toPromise();
+        const currentLocalCommercePrices: LocalCommercePrice[] = currentCommercePrices
+          .map(x => ({
+            id: x.id,
+            price: x.sells && x.sells.quantity && x.sells.quantity > 0 ? x.sells.unit_price : null,
+            quantity: x.sells && x.sells.quantity && x.sells.quantity > 0 ? x.sells.quantity : null
+          }))
+          .filter(x => x.price != null);
+        const currentLocalCommerceBuyPrices: LocalCommercePrice[] = currentCommercePrices
+          .map(x => ({
+            id: x.id,
+            price: x.buys && x.buys.quantity && x.buys.quantity > 0 ? x.buys.unit_price : null,
+            quantity: x.buys && x.buys.quantity && x.buys.quantity > 0 ? x.buys.quantity : null
+          }))
+          .filter(x => x.price != null);
         localCommercePrices.push(...currentLocalCommercePrices);
+        localCommerceBuyPrices.push(...currentLocalCommerceBuyPrices);
       }
 
       // Storage
       this.pricesMessage = 'Calcul ...';
       this.pricesPercentage = null;
       this.setCommercePrices(localCommercePrices);
+      this.setCommerceBuyPrices(localCommerceBuyPrices);
       const timestamp = new Date();
       this.setCommerceTimestamp(timestamp);
       this.commercePrices = new Map(localCommercePrices.map(price => [price.id, price]));
+      this.commerceBuyPrices = new Map(localCommerceBuyPrices.map(price => [price.id, price]));
 
       // Final
       this.pricesMessage = 'La liste des prix date du ' + formatDate(timestamp, 'dd-MM-yyyy', this.locale)
@@ -287,6 +301,7 @@ export class BusinessComponent implements OnInit {
     for (const recipe of Array.from(this.recipes.values())) {
       const item = this.items.get(recipe.itemId);
       const commercePrice = this.commercePrices.get(recipe.itemId);
+      const commerceBuyPrice = this.commerceBuyPrices.get(recipe.itemId);
       const craftPrice: CraftPrice = {
         id: recipe.itemId,
         name: item.name,
@@ -297,9 +312,13 @@ export class BusinessComponent implements OnInit {
         containsNotAutoLearned: !recipe.autoLearned,
         sellable: item.sellable,
         sellingPrice: commercePrice ? commercePrice.price * recipe.count : 0,
+        sellingQuantity: commercePrice ? commercePrice.quantity : 0,
+        buyingPrice: commerceBuyPrice ? commerceBuyPrice.price * recipe.count : 0,
+        buyingQuantity: commerceBuyPrice ? commerceBuyPrice.quantity : 0,
         disciplines: recipe.disciplines,
         level: recipe.level,
-        profit: null,
+        sellingProfit: null,
+        buyingProfit: null,
         icon: item.icon
       };
       this.getMinPrice(recipe.itemId);
@@ -309,7 +328,8 @@ export class BusinessComponent implements OnInit {
         craftPrice.containsUnknown = craftPrice.containsUnknown || minPrice.containsUnknown;
         craftPrice.containsNotAutoLearned = craftPrice.containsNotAutoLearned || minPrice.containsNotAutoLearned;
       }
-      craftPrice.profit = Math.floor(craftPrice.sellingPrice * 0.85) - craftPrice.price;
+      craftPrice.sellingProfit = Math.floor(craftPrice.sellingPrice * 0.85) - craftPrice.price;
+      craftPrice.buyingProfit = Math.floor(craftPrice.buyingPrice * 0.85) - craftPrice.price;
       craftPrices.push(craftPrice);
     }
     this.craftPrices = craftPrices;
@@ -344,8 +364,8 @@ export class BusinessComponent implements OnInit {
     if (!this.search) {
       return true;
     }
-    const keyWords = this.search.toUpperCase().split(' ');
-    const name = craftPrice.name.toUpperCase();
+    const keyWords = this.search.toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').split(' ');
+    const name = craftPrice.name.toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     return keyWords.filter(keyWord => name.includes(keyWord)).length === keyWords.length;
   }
 
@@ -509,6 +529,15 @@ export class BusinessComponent implements OnInit {
     localStorage.setItem(this.commercePricesKey, this.compressionService.compressObject(commercePrices));
   }
 
+  private getCommerceBuyPrices(): LocalCommercePrice[] | null {
+    const res = localStorage.getItem(this.commerceBuyPricesKey);
+    return res == null ? null : this.compressionService.decompressObject(res);
+  }
+
+  private setCommerceBuyPrices(commerceBuyPrices: LocalCommercePrice[]): void {
+    localStorage.setItem(this.commerceBuyPricesKey, this.compressionService.compressObject(commerceBuyPrices));
+  }
+
   private clearStorage(): void {
     console.log('clearStorage');
     localStorage.removeItem(this.versionKey);
@@ -518,5 +547,6 @@ export class BusinessComponent implements OnInit {
     localStorage.removeItem(this.npcPricesKey);
     localStorage.removeItem(this.commerceTimestampKey);
     localStorage.removeItem(this.commercePricesKey);
+    localStorage.removeItem(this.commerceBuyPricesKey);
   }
 }
