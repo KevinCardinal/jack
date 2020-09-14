@@ -46,7 +46,7 @@ export class BusinessComponent implements OnInit {
   pricesMessage: string;
   pricesPercentage: number;
 
-  recipes: Map<number, LocalRecipe>;
+  recipes: Map<number, LocalRecipe[]>;
   items: Map<number, LocalItem>;
   npcPrices: Map<number, NpcPrice>;
   commercePrices: Map<number, LocalCommercePrice>;
@@ -103,7 +103,7 @@ export class BusinessComponent implements OnInit {
   }
 
   ngOnInitMainData(): void {
-    this.recipes = new Map(this.getRecipes().map(recipe => [recipe.itemId, recipe]));
+    this.recipes = this.buildRecipes(this.getRecipes());
     this.items = new Map(this.getItems().map(item => [item.id, item]));
     this.npcPrices = new Map(this.getNpcPrices().map(npcPrice => [npcPrice.id, npcPrice]));
     const currentTimestamp = this.getCommerceTimestamp();
@@ -226,7 +226,7 @@ export class BusinessComponent implements OnInit {
       this.setItems(localItems);
       this.setNpcPrices(npcPrices);
       this.setBuild((await this.gw2BusinessRepository.getBuild().toPromise()).id);
-      this.recipes = new Map(localRecipes.map(recipe => [recipe.itemId, recipe]));
+      this.recipes = this.buildRecipes(localRecipes);
       this.items = new Map(localItems.map(item => [item.id, item]));
       this.npcPrices = new Map(npcPrices.map(npcPrice => [npcPrice.id, npcPrice]));
 
@@ -298,7 +298,7 @@ export class BusinessComponent implements OnInit {
     this.craftPrices = null;
     this.filteredCraftPrices = null;
     const craftPrices: CraftPrice[] = [];
-    for (const recipe of Array.from(this.recipes.values())) {
+    for (const recipe of Array.from(this.recipes.values()).reduce((acc, val) => acc.concat(val), [])) {
       const item = this.items.get(recipe.itemId);
       const commercePrice = this.commercePrices.get(recipe.itemId);
       const commerceBuyPrice = this.commerceBuyPrices.get(recipe.itemId);
@@ -308,6 +308,7 @@ export class BusinessComponent implements OnInit {
         count: recipe.count,
         price: 0,
         source: MinPriceSource.Craft,
+        recipeId: recipe.recipeId,
         containsUnknown: false,
         containsNotAutoLearned: !recipe.autoLearned,
         sellable: item.sellable,
@@ -397,6 +398,7 @@ export class BusinessComponent implements OnInit {
           count: npcPrice.count,
           price: price.amount,
           source: MinPriceSource.NPC,
+          recipeId: null,
           containsUnknown: false,
           containsNotAutoLearned: false
         };
@@ -412,32 +414,38 @@ export class BusinessComponent implements OnInit {
         count: 1,
         price: commercePrice.price,
         source: MinPriceSource.HDV,
+        recipeId: null,
         containsUnknown: false,
         containsNotAutoLearned: false,
       };
     }
 
     // Recipe
-    const recipe = this.recipes.get(id);
-    if (recipe && recipe.ingredients && recipe.ingredients.length > 0) {
-      const temp: MinPrice = {
-        id,
-        name: item.name,
-        count: recipe.count,
-        price: 0,
-        source: MinPriceSource.Craft,
-        containsUnknown: false,
-        containsNotAutoLearned: !recipe.autoLearned
-      };
-      for (const ingredient of recipe.ingredients) {
-        const ingredientMinPrice = this.getMinPrice(ingredient.itemId);
-        const price = Math.ceil(ingredientMinPrice.price * ingredient.count * temp.count / ingredientMinPrice.count);
-        temp.price = temp.price + price;
-        temp.containsUnknown = temp.containsUnknown || ingredientMinPrice.containsUnknown;
-        temp.containsNotAutoLearned = temp.containsNotAutoLearned || ingredientMinPrice.containsNotAutoLearned;
-      }
-      if (!res || temp.price / temp.count < res.price / res.count) {
-        res = temp;
+    const recipes = this.recipes.get(id);
+    if (recipes) {
+      for (const recipe of recipes) {
+        if (recipe.ingredients && recipe.ingredients.length > 0) {
+          const temp: MinPrice = {
+            id,
+            name: item.name,
+            count: recipe.count,
+            price: 0,
+            source: MinPriceSource.Craft,
+            recipeId: recipe.recipeId,
+            containsUnknown: false,
+            containsNotAutoLearned: !recipe.autoLearned
+          };
+          for (const ingredient of recipe.ingredients) {
+            const ingredientMinPrice = this.getMinPrice(ingredient.itemId);
+            const price = Math.ceil(ingredientMinPrice.price * ingredient.count * temp.count / ingredientMinPrice.count);
+            temp.price = temp.price + price;
+            temp.containsUnknown = temp.containsUnknown || ingredientMinPrice.containsUnknown;
+            temp.containsNotAutoLearned = temp.containsNotAutoLearned || ingredientMinPrice.containsNotAutoLearned;
+          }
+          if (!res || temp.price / temp.count < res.price / res.count) {
+            res = temp;
+          }
+        }
       }
     }
 
@@ -449,6 +457,7 @@ export class BusinessComponent implements OnInit {
         count: 1,
         price: 0,
         source: MinPriceSource.Unknown,
+        recipeId: null,
         containsUnknown: true,
         containsNotAutoLearned: false
       };
@@ -465,6 +474,17 @@ export class BusinessComponent implements OnInit {
       summary: 'Erreur',
       detail: 'Une erreur est survenue, veuillez actualiser la page.'
     });
+  }
+
+  private buildRecipes(recipes: LocalRecipe[]): Map<number, LocalRecipe[]> {
+    const res = new Map<number, LocalRecipe[]>();
+    for (const recipe of recipes) {
+      if (!res.has(recipe.itemId)) {
+        res.set(recipe.itemId, []);
+      }
+      res.get(recipe.itemId).push(recipe);
+    }
+    return res;
   }
 
   private getVersion(): string | null {

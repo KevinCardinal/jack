@@ -41,6 +41,7 @@ export interface MinPrice {
   count: number;
   price: number;
   source: MinPriceSource;
+  recipeId: number | null;
   containsUnknown: boolean;
   containsNotAutoLearned: boolean;
 }

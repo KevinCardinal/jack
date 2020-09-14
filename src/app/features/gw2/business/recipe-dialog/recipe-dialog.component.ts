@@ -11,7 +11,7 @@ export class RecipeDialogComponent implements OnInit {
 
   craftPrice: CraftPrice;
   minPrices: Map<number, MinPrice>;
-  recipes: Map<number, LocalRecipe>;
+  recipes: Map<number, LocalRecipe[]>;
 
   craftStep: CraftStep;
   ingredients: string[];
@@ -26,7 +26,7 @@ export class RecipeDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const recipe = this.recipes.get(this.craftPrice.id);
+    const recipe = this.recipes.get(this.craftPrice.id).find(x => x.recipeId === this.craftPrice.recipeId);
     const subSteps = recipe.ingredients.map(x => this.getCraftStep(x.itemId, x.count * recipe.count));
     this.craftStep = {
       count: recipe.count,
@@ -54,7 +54,7 @@ export class RecipeDialogComponent implements OnInit {
         price: Math.ceil(minPrice.price * count / minPrice.count)
       };
     } else {
-      const recipe = this.recipes.get(id);
+      const recipe = this.recipes.get(id).find(x => x.recipeId === minPrice.recipeId);
       const res: CraftStep = {
         count,
         name: minPrice.name,
