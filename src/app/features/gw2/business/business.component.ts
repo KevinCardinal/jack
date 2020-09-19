@@ -330,7 +330,7 @@ export class BusinessComponent implements OnInit {
         craftPrice.containsNotAutoLearned = craftPrice.containsNotAutoLearned || minPrice.containsNotAutoLearned;
       }
       craftPrice.sellingProfit = Math.floor(craftPrice.sellingPrice * 0.85) - craftPrice.price;
-      craftPrice.buyingProfit = Math.floor(craftPrice.buyingPrice * 0.85) - craftPrice.price;
+      craftPrice.buyingProfit = Math.floor(craftPrice.buyingPrice * 0.9) - craftPrice.price;
       craftPrices.push(craftPrice);
     }
     this.craftPrices = craftPrices;
