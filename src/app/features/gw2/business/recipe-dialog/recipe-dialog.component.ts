@@ -27,7 +27,7 @@ export class RecipeDialogComponent implements OnInit {
 
   ngOnInit(): void {
     const recipe = this.recipes.get(this.craftPrice.id).find(x => x.recipeId === this.craftPrice.recipeId);
-    const subSteps = recipe.ingredients.map(x => this.getCraftStep(x.itemId, x.count * recipe.count));
+    const subSteps = recipe.ingredients.map(x => this.getCraftStep(x.itemId, x.count));
     this.craftStep = {
       count: recipe.count,
       name: this.craftPrice.name,

@@ -325,7 +325,7 @@ export class BusinessComponent implements OnInit {
       this.getMinPrice(recipe.itemId);
       for (const ingredient of recipe.ingredients) {
         const minPrice = this.getMinPrice(ingredient.itemId);
-        craftPrice.price = craftPrice.price + Math.ceil(minPrice.price * ingredient.count * craftPrice.count / minPrice.count);
+        craftPrice.price = craftPrice.price + Math.ceil(minPrice.price * ingredient.count / minPrice.count);
         craftPrice.containsUnknown = craftPrice.containsUnknown || minPrice.containsUnknown;
         craftPrice.containsNotAutoLearned = craftPrice.containsNotAutoLearned || minPrice.containsNotAutoLearned;
       }
@@ -437,7 +437,7 @@ export class BusinessComponent implements OnInit {
           };
           for (const ingredient of recipe.ingredients) {
             const ingredientMinPrice = this.getMinPrice(ingredient.itemId);
-            const price = Math.ceil(ingredientMinPrice.price * ingredient.count * temp.count / ingredientMinPrice.count);
+            const price = Math.ceil(ingredientMinPrice.price * ingredient.count / ingredientMinPrice.count);
             temp.price = temp.price + price;
             temp.containsUnknown = temp.containsUnknown || ingredientMinPrice.containsUnknown;
             temp.containsNotAutoLearned = temp.containsNotAutoLearned || ingredientMinPrice.containsNotAutoLearned;
