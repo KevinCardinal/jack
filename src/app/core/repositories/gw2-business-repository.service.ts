@@ -4,6 +4,7 @@ import {forkJoin, Observable, of} from 'rxjs';
 import {Build, CommercePrice, Item, NpcPrice, Recipe} from '@app/core/models/gw2-business.model';
 import {flatMap, map} from 'rxjs/operators';
 import gw2BusinessNpcPrices from '@assets/resources/gw2-business-npc-prices.json';
+import gw2BusinessOtherRecipes from '@assets/resources/gw2-business-other-recipes.json';
 
 @Injectable()
 export class Gw2BusinessRepository {
@@ -21,10 +22,13 @@ export class Gw2BusinessRepository {
   private buildEndpoint = '/build';
 
   private npcPrices: Map<number, NpcPrice>;
+  private otherRecipes: Map<number, Recipe>;
 
   constructor(private http: HttpClient) {
     const list: NpcPrice[] = gw2BusinessNpcPrices;
     this.npcPrices = new Map(list.map(x => [x.id, x]));
+    const otherRecipes: Recipe[] = gw2BusinessOtherRecipes;
+    this.otherRecipes = new Map(otherRecipes.map(x => [x.id, x]));
   }
 
   public getItemIds(): Observable<number[]> {
@@ -38,11 +42,29 @@ export class Gw2BusinessRepository {
 
   public getRecipeIds(): Observable<number[]> {
     const params = this.defaultParams;
-    return this.http.get<number[]>(this.baseUrl + this.recipesEndpoint, {params});
+    return this.http.get<number[]>(this.baseUrl + this.recipesEndpoint, {params})
+      .pipe(
+        map(ids => Array.from(this.otherRecipes.keys()).concat(ids))
+      );
   }
 
   public getRecipes(ids: number[]): Observable<Recipe[]> {
-    return this.getRecipesHelper(ids);
+    const trueIds = ids.filter(id => !this.otherRecipes.has(id));
+    return this.getRecipesHelper(trueIds)
+      .pipe(
+        map(recipes => {
+          const res: Recipe[] = [];
+          const trueRecipes: Map<number, Recipe> = new Map(recipes.map(x => [x.id, x]));
+          ids.forEach(id => {
+            if (this.otherRecipes.has(id)) {
+              res.push(this.otherRecipes.get(id));
+            } else if (trueRecipes.has(id)) {
+              res.push(trueRecipes.get(id));
+            }
+          });
+          return res;
+        })
+      );
   }
 
   public getCommercePriceIds(): Observable<number[]> {

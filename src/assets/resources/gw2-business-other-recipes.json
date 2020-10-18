@@ -1,0 +1,23 @@
+[
+  {
+    "id": -1,
+    "name": "Cristal de quartz chargé",
+    "type": "CraftingMaterial",
+    "output_item_id": 43772,
+    "output_item_count": 1,
+    "time_to_craft_ms": 5000,
+    "disciplines": [
+      "Other"
+    ],
+    "min_rating": 0,
+    "flags": [],
+    "ingredients": [
+      {
+        "item_id": 43773,
+        "count": 25
+      }
+    ],
+    "guild_ingredients": [],
+    "chat_link": "[&AgH8qgAA]"
+  }
+]

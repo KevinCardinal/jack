@@ -164,7 +164,8 @@ export enum RecipeType {
   Consumable = 'Consumable',
   Dye = 'Dye',
   Potion = 'Potion',
-  UpgradeComponent = 'UpgradeComponent'
+  UpgradeComponent = 'UpgradeComponent',
+  CraftingMaterial = 'CraftingMaterial'
 }
 
 export enum RecipeDiscipline {
@@ -176,7 +177,8 @@ export enum RecipeDiscipline {
   Leatherworker = 'Leatherworker',
   Tailor = 'Tailor',
   Weaponsmith = 'Weaponsmith',
-  Scribe = 'Scribe'
+  Scribe = 'Scribe',
+  Other = 'Other'
 }
 
 export enum RecipeFlag {
