@@ -64,8 +64,11 @@ export class BusinessComponent implements OnInit {
   unknownSource = true;
   notAutoLearnedRecipes = true;
   notSellable = true;
-  offerMode = true;
-  modeOptions: SelectItem[];
+  instaBuy = true;
+  instaSell = false;
+  buyOptions: SelectItem[];
+  sellOptions: SelectItem[];
+  first = 0;
 
   constructor(private gw2BusinessRepository: Gw2BusinessRepository,
               private compressionService: CompressionService,
@@ -122,9 +125,13 @@ export class BusinessComponent implements OnInit {
     this.disciplineOptions = Object.keys(RecipeDiscipline).map(k => RecipeDiscipline[k] as RecipeDiscipline)
       .map(x => ({label: this.translateService.instant(x), value: x}))
       .sort((a, b) => a.label.localeCompare(b.label));
-    this.modeOptions = [
-      {label: 'Mode offre', value: true},
-      {label: 'Mode demande', value: false}
+    this.buyOptions = [
+      {label: 'Achat en demande', value: false},
+      {label: 'Achat instantané', value: true}
+    ];
+    this.sellOptions = [
+      {label: 'Vente en offre', value: false},
+      {label: 'Vente instantanée', value: true}
     ];
     this.formGroup = this.formBuilder.group({
       search: new FormControl(this.search),
@@ -134,7 +141,8 @@ export class BusinessComponent implements OnInit {
       notAutoLearnedRecipes: new FormControl(this.notAutoLearnedRecipes),
       unknownSource: new FormControl(this.unknownSource),
       notSellable: new FormControl(this.notSellable),
-      offerMode: new FormControl(this.modeOptions, [Validators.required])
+      instaBuy: new FormControl(this.buyOptions, [Validators.required]),
+      instaSell: new FormControl(this.sellOptions, [Validators.required])
     });
   }
 
@@ -293,15 +301,15 @@ export class BusinessComponent implements OnInit {
     }
   }
 
-  computeTableData(): void {
+  computeTableData(skipResetFirst?: boolean): void {
+    console.log('computeTableData');
     this.minPrices = new Map();
     this.craftPrices = null;
     this.filteredCraftPrices = null;
     const craftPrices: CraftPrice[] = [];
     for (const recipe of Array.from(this.recipes.values()).reduce((acc, val) => acc.concat(val), [])) {
       const item = this.items.get(recipe.itemId);
-      const commercePrice = this.commercePrices.get(recipe.itemId);
-      const commerceBuyPrice = this.commerceBuyPrices.get(recipe.itemId);
+      const commercePrice = this.instaSell ? this.commerceBuyPrices.get(recipe.itemId) : this.commercePrices.get(recipe.itemId);
       const craftPrice: CraftPrice = {
         id: recipe.itemId,
         name: item.name,
@@ -312,14 +320,11 @@ export class BusinessComponent implements OnInit {
         containsUnknown: false,
         containsNotAutoLearned: !recipe.autoLearned,
         sellable: item.sellable,
-        sellingPrice: commercePrice ? commercePrice.price * recipe.count : 0,
-        sellingQuantity: commercePrice ? commercePrice.quantity : 0,
-        buyingPrice: commerceBuyPrice ? commerceBuyPrice.price * recipe.count : 0,
-        buyingQuantity: commerceBuyPrice ? commerceBuyPrice.quantity : 0,
+        commercePrice: commercePrice ? commercePrice.price * recipe.count : 0,
+        commerceQuantity: commercePrice ? commercePrice.quantity : 0,
         disciplines: recipe.disciplines,
         level: recipe.level,
-        sellingProfit: null,
-        buyingProfit: null,
+        profit: null,
         icon: item.icon
       };
       this.getMinPrice(recipe.itemId);
@@ -329,18 +334,20 @@ export class BusinessComponent implements OnInit {
         craftPrice.containsUnknown = craftPrice.containsUnknown || minPrice.containsUnknown;
         craftPrice.containsNotAutoLearned = craftPrice.containsNotAutoLearned || minPrice.containsNotAutoLearned;
       }
-      craftPrice.sellingProfit = Math.floor(craftPrice.sellingPrice * 0.85) - craftPrice.price;
-      craftPrice.buyingProfit = Math.floor(craftPrice.buyingPrice * 0.9) - craftPrice.price;
+      craftPrice.profit = Math.floor(craftPrice.commercePrice * 0.85) - craftPrice.price;
       craftPrices.push(craftPrice);
     }
     this.craftPrices = craftPrices;
-    this.filterTableData();
+    this.filterTableData(skipResetFirst);
   }
 
-  filterTableData(): void {
+  filterTableData(skipResetFirst?: boolean): void {
     console.log('filterTableData');
     if (this.formGroup.valid) {
       this.filteredCraftPrices = null;
+      if (!skipResetFirst) {
+        this.first = 0;
+      }
       this.filteredCraftPrices = this.craftPrices
         .filter(x => this.hasSearch(x))
         .filter(x => this.hasSelectedDisciplines(x))
@@ -406,7 +413,10 @@ export class BusinessComponent implements OnInit {
     }
 
     // Commerce
-    const commercePrice = this.commercePrices.get(id);
+    let commercePrice = this.instaBuy ? this.commercePrices.get(id) : this.commerceBuyPrices.get(id);
+    if (!this.instaBuy && !commercePrice) { // No demand, only offer
+      commercePrice = this.commercePrices.get(id);
+    }
     if (commercePrice && (!res || commercePrice.price < res.price / res.count)) {
       res = {
         id,

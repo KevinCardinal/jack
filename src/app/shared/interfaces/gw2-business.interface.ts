@@ -47,13 +47,10 @@ export interface MinPrice {
 }
 
 export interface CraftPrice extends MinPrice {
-  sellingPrice: number;
-  sellingQuantity: number;
-  sellingProfit: number;
+  commercePrice: number;
+  commerceQuantity: number;
+  profit: number;
   sellable: boolean;
-  buyingPrice: number;
-  buyingQuantity: number;
-  buyingProfit: number;
   disciplines: RecipeDiscipline[];
   level: number;
   icon: string;

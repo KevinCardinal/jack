@@ -17,56 +17,67 @@
     </div>
   </div>
   <div *ngIf="commercePrices" class="mt-5">
-    <form [formGroup]="formGroup" fxLayout="row wrap" fxLayoutGap="1rem" class="filters">
-      <div class="mv-auto">
-        <input pInputText type="text" [(ngModel)]="search" placeholder="Recherche par mots clés"
-               formControlName="search"/>
+    <form [formGroup]="formGroup">
+      <div fxLayout="row wrap" fxLayoutGap="1rem" class="filters">
+        <div class="mv-auto">
+          <p-checkbox [(ngModel)]="notAutoLearnedRecipes" label="Recettes non apprises automatiquement"
+                      [binary]="true" formControlName="notAutoLearnedRecipes" (onChange)="filterTableData()">
+          </p-checkbox>
+        </div>
+        <div class="mv-auto">
+          <p-checkbox [(ngModel)]="unknownSource" label="Composants à l'obtention inconnue"
+                      [binary]="true" formControlName="unknownSource" (onChange)="filterTableData()">
+          </p-checkbox>
+        </div>
+        <div class="mv-auto">
+          <p-checkbox [(ngModel)]="notSellable" label="Non vendable"
+                      [binary]="true" formControlName="notSellable" (onChange)="filterTableData()">
+          </p-checkbox>
+        </div>
+        <span class="spacer"></span>
       </div>
-      <div class="mv-auto">
-        <p-multiSelect [options]="disciplineOptions" [(ngModel)]="selectedDisciplines"
-                       defaultLabel="Métiers" formControlName="selectedDisciplines"
-                       styleClass="gw2-business" maxSelectedLabels="0"
-                       selectedItemsLabel="{0} métier(s) sélectionné(s)"
-                       (onChange)="filterTableData()" [filter]="false">
-        </p-multiSelect>
-      </div>
-      <div class="mv-auto">
-        <input pInputText type="number" [(ngModel)]="minRating" placeholder="Niveau minimum"
-               formControlName="minRating" style="width: 150px"/>
-      </div>
-      <div class="mv-auto">
-        <input pInputText type="number" [(ngModel)]="maxRating" placeholder="Niveau maximum"
-               formControlName="maxRating" style="width: 150px"/>
-      </div>
-      <div class="mv-auto">
-        <p-checkbox [(ngModel)]="notAutoLearnedRecipes" label="Recettes non apprises automatiquement"
-                    [binary]="true" formControlName="notAutoLearnedRecipes" (onChange)="filterTableData()">
-        </p-checkbox>
-      </div>
-      <div class="mv-auto">
-        <p-checkbox [(ngModel)]="unknownSource" label="Composants à l'obtention inconnue"
-                    [binary]="true" formControlName="unknownSource" (onChange)="filterTableData()">
-        </p-checkbox>
-      </div>
-      <div class="mv-auto">
-        <p-checkbox [(ngModel)]="notSellable" label="Non vendable"
-                    [binary]="true" formControlName="notSellable" (onChange)="filterTableData()">
-        </p-checkbox>
-      </div>
-      <span class="spacer"></span>
-      <div class="mv-auto">
-        <p-dropdown [options]="modeOptions" [(ngModel)]="offerMode"
-                    placeholder="Mode de vente" formControlName="offerMode"
-                    styleClass="gw2-business">
-        </p-dropdown>
-      </div>
-      <div class="mv-auto">
-        <p-button (onClick)="filterTableData()" label="Filtrer"></p-button>
+      <div fxLayout="row wrap" fxLayoutGap="1rem" class="filters mt-1">
+        <div class="mv-auto">
+          <input pInputText type="text" [(ngModel)]="search" placeholder="Recherche par mots clés"
+                 formControlName="search"/>
+        </div>
+        <div class="mv-auto">
+          <p-multiSelect [options]="disciplineOptions" [(ngModel)]="selectedDisciplines"
+                         defaultLabel="Métiers" formControlName="selectedDisciplines"
+                         styleClass="gw2-business" maxSelectedLabels="0"
+                         selectedItemsLabel="{0} métier(s) sélectionné(s)"
+                         (onChange)="filterTableData()" [filter]="false">
+          </p-multiSelect>
+        </div>
+        <div class="mv-auto">
+          <input pInputText type="number" [(ngModel)]="minRating" placeholder="Niveau minimum"
+                 formControlName="minRating" style="width: 150px"/>
+        </div>
+        <div class="mv-auto">
+          <input pInputText type="number" [(ngModel)]="maxRating" placeholder="Niveau maximum"
+                 formControlName="maxRating" style="width: 150px"/>
+        </div>
+        <span class="spacer"></span>
+        <div class="mv-auto">
+          <p-dropdown [options]="buyOptions" [(ngModel)]="instaBuy"
+                      placeholder="Mode d'achat" formControlName="instaBuy"
+                      styleClass="gw2-business" (onChange)="this.computeTableData(true)">
+          </p-dropdown>
+        </div>
+        <div class="mv-auto">
+          <p-dropdown [options]="sellOptions" [(ngModel)]="instaSell"
+                      placeholder="Mode de vente" formControlName="instaSell"
+                      styleClass="gw2-business" (onChange)="this.computeTableData(true)">
+          </p-dropdown>
+        </div>
+        <div class="mv-auto">
+          <p-button (onClick)="filterTableData()" label="Filtrer"></p-button>
+        </div>
       </div>
     </form>
     <div class="mt-3">
       <p-table [value]="filteredCraftPrices ? filteredCraftPrices : []" [rowHover]="true"
-               [paginator]="true" [rows]="10" [rowsPerPageOptions]="[5,10,15,20,25,50]"
+               [paginator]="true" [rows]="10" [rowsPerPageOptions]="[5,10,15,20,25,50]" [(first)]="first"
                class="table-auto" [paginatorDropdownAppendTo]="'body'" [autoLayout]="true"
                styleClass="gw2-business">
         <ng-template pTemplate="header">
@@ -95,58 +106,30 @@
                 <p-sortIcon class="mv-auto" field="price"></p-sortIcon>
               </div>
             </th>
-            <ng-container *ngIf="offerMode">
-              <th pSortableColumn="sellingPrice">
-                <div fxLayout="row nowrap" fxLayoutAlign="center" fxLayoutGap="1rem">
-                  <div class="mv-auto">
-                    Prix HDV
-                  </div>
-                  <p-sortIcon class="mv-auto" field="sellingPrice"></p-sortIcon>
+            <th pSortableColumn="commercePrice">
+              <div fxLayout="row nowrap" fxLayoutAlign="center" fxLayoutGap="1rem">
+                <div class="mv-auto">
+                  Prix HDV
                 </div>
-              </th>
-              <th pSortableColumn="sellingProfit">
-                <div fxLayout="row nowrap" fxLayoutAlign="center" fxLayoutGap="1rem">
-                  <div class="mv-auto">
-                    Bénéfice
-                  </div>
-                  <p-sortIcon class="mv-auto" field="sellingProfit"></p-sortIcon>
+                <p-sortIcon class="mv-auto" field="commercePrice"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="Profit">
+              <div fxLayout="row nowrap" fxLayoutAlign="center" fxLayoutGap="1rem">
+                <div class="mv-auto">
+                  Bénéfice
                 </div>
-              </th>
-              <th pSortableColumn="sellingQuantity">
-                <div fxLayout="row nowrap" fxLayoutAlign="center" fxLayoutGap="1rem">
-                  <div class="mv-auto">
-                    Quantité HDV
-                  </div>
-                  <p-sortIcon class="mv-auto" field="sellingQuantity"></p-sortIcon>
+                <p-sortIcon class="mv-auto" field="Profit"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="commerceQuantity">
+              <div fxLayout="row nowrap" fxLayoutAlign="center" fxLayoutGap="1rem">
+                <div class="mv-auto">
+                  Quantité HDV
                 </div>
-              </th>
-            </ng-container>
-            <ng-container *ngIf="!offerMode">
-              <th pSortableColumn="buyingPrice">
-                <div fxLayout="row nowrap" fxLayoutAlign="center" fxLayoutGap="1rem">
-                  <div class="mv-auto">
-                    Prix HDV
-                  </div>
-                  <p-sortIcon class="mv-auto" field="buyingPrice"></p-sortIcon>
-                </div>
-              </th>
-              <th pSortableColumn="buyingProfit">
-                <div fxLayout="row nowrap" fxLayoutAlign="center" fxLayoutGap="1rem">
-                  <div class="mv-auto">
-                    Bénéfice
-                  </div>
-                  <p-sortIcon class="mv-auto" field="buyingProfit"></p-sortIcon>
-                </div>
-              </th>
-              <th pSortableColumn="buyingQuantity">
-                <div fxLayout="row nowrap" fxLayoutAlign="center" fxLayoutGap="1rem">
-                  <div class="mv-auto">
-                    Quantité HDV
-                  </div>
-                  <p-sortIcon class="mv-auto" field="buyingQuantity"></p-sortIcon>
-                </div>
-              </th>
-            </ng-container>
+                <p-sortIcon class="mv-auto" field="commerceQuantity"></p-sortIcon>
+              </div>
+            </th>
           </tr>
         </ng-template>
         <ng-container *ngIf="!craftPrices">
@@ -174,24 +157,13 @@
               <td>
                 <div class="d-flex flex-wrap" [innerHTML]="craftPrice.price | gw2Gold"></div>
               </td>
-              <ng-container *ngIf="offerMode">
                 <td>
-                  <div class="d-flex flex-wrap" [innerHTML]="craftPrice.sellingPrice | gw2Gold"></div>
+                  <div class="d-flex flex-wrap" [innerHTML]="craftPrice.commercePrice | gw2Gold"></div>
                 </td>
                 <td>
-                  <div class="d-flex flex-wrap" [innerHTML]="craftPrice.sellingProfit | gw2Gold"></div>
+                  <div class="d-flex flex-wrap" [innerHTML]="craftPrice.profit | gw2Gold"></div>
                 </td>
-                <td>{{craftPrice.sellingQuantity}}</td>
-              </ng-container>
-              <ng-container *ngIf="!offerMode">
-                <td>
-                  <div class="d-flex flex-wrap" [innerHTML]="craftPrice.buyingPrice | gw2Gold"></div>
-                </td>
-                <td>
-                  <div class="d-flex flex-wrap" [innerHTML]="craftPrice.buyingProfit | gw2Gold"></div>
-                </td>
-                <td>{{craftPrice.buyingQuantity}}</td>
-              </ng-container>
+                <td>{{craftPrice.commerceQuantity}}</td>
             </tr>
           </ng-template>
         </ng-container>
