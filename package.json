@@ -7,7 +7,7 @@
     "build": "ng build",
     "lint": "ng lint",
     "prod": "ng build --prod --base-href /",
-    "web": "ng build --prod --base-href /lEvEOmvXEHyuvSbRiVURJc0/ && node redirections.js https://filedn.com/lEvEOmvXEHyuvSbRiVURJc0"
+    "web": "ng build --prod --base-href /lKfNPuLHVcVBJrPa7GXFTl5/ && node redirections.js https://filedn.eu/lKfNPuLHVcVBJrPa7GXFTl5"
   },
   "private": true,
   "dependencies": {
